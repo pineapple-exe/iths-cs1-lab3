@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Security.Cryptography;
 
 namespace Lab3
 {
@@ -8,7 +7,13 @@ namespace Lab3
     {
         static void Main(string[] args)
         {
-            string path = @"c:\Users\forss\Desktop\BlackP.png";
+            if (args.Length != 1)
+            {
+                Console.WriteLine("Beep! Jag tar exakt ett argument.");
+                return;
+            }
+
+            string path = args[0];
 
             if (!File.Exists(path))
             {
@@ -16,6 +21,11 @@ namespace Lab3
                 return;
             }
 
+            PrintImageMetadata(path);
+        }
+
+        static void PrintImageMetadata(string path)
+        {
             FileStream dataStream = new FileStream(path, FileMode.Open);
             BinaryReader interpreter = new BinaryReader(dataStream);
             short maybeBM = interpreter.ReadInt16();
@@ -53,18 +63,18 @@ namespace Lab3
 
         static void PrintTypeNLengthPNG(FileStream dataStream, BinaryReader interpreter)
         {
-            int ChunkDataLength = interpreter.ReadInt32BigEndian();
-            string ChunkType = System.Text.Encoding.ASCII.GetString(interpreter.ReadBytes(4));
+            int chunkDataLength = interpreter.ReadInt32BigEndian();
+            string chunkType = System.Text.Encoding.ASCII.GetString(interpreter.ReadBytes(4));
 
-            Console.WriteLine($"Type: {ChunkType}    Length of chunk data: {ChunkDataLength}");
+            Console.WriteLine($"Type: {chunkType}    Length of chunk data: {chunkDataLength}");
 
-            dataStream.Position += ChunkDataLength + 4;
+            dataStream.Position += chunkDataLength + 4;
         }
 
         static int ReadInt32BigEndian(this BinaryReader interpreter)
         {
-            Byte[] bytes = interpreter.ReadBytes(4);
-            Byte[] reversed = new Byte[bytes.Length];
+            byte[] bytes = interpreter.ReadBytes(4);
+            byte[] reversed = new byte[bytes.Length];
             int rIndex = 0;
 
             for (int i = bytes.Length - 1; i > -1; i--)
